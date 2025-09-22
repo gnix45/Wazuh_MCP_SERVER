@@ -17,6 +17,7 @@ A small, focused MCP (Model Context Protocol) server that exposes Wazuh alerts (
 - **Troubleshooting**
 - **License**
 - **Author**
+ - **Screenshots**
 
 ### 📦 What this is
 
@@ -232,6 +233,20 @@ curl -k -u "wazuh:WAZUH_API_PASS" -X POST "https://192.168.x.x:55000/security/us
 - Confirm `registry.yaml` has `wazuh_mcp` under the `registry:` key
 - Confirm Claude Desktop config includes `--catalog=/mcp/catalogs/custom.yaml`
 - Restart Claude Desktop
+
+### 📸 Screenshots
+
+Claude Desktop showing recent Wazuh FIM alerts retrieved via the MCP server:
+
+![Claude showing Wazuh FIM alerts](assets/claude-fim-alerts.png)
+
+If the image does not render on GitHub, ensure the file exists at `assets/claude-fim-alerts.png` within the repository.
+
+Obsidian vault note generated from the same FIM alerts (stored via tools):
+
+![Obsidian vault FIM alerts note](assets/obsidian-fim-alerts.png)
+
+Ensure the file exists at `assets/obsidian-fim-alerts.png` in the repo.
 
 ### 📄 License
 
