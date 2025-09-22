@@ -21,24 +21,24 @@ mcp = FastMCP("wazuh_mcp")
 
 # Configuration defaults (can be overridden via Docker MCP secrets / env vars)
 ALTERNATIVE_URLS = [
-    "https://192.168.1.150:55000",
+    "https://192.168.x.x:55000",
     "https://127.0.0.1:55000",
     "https://172.17.0.1:55000",
     "https://host.docker.internal:55000",
 ]
 ALTERNATIVE_INDEXER_URLS = [
-    "https://192.168.1.150:9200",
+    "https://192.168.x.x:9200",
     "https://127.0.0.1:9200",
     "https://172.17.0.1:9200",
     "https://host.docker.internal:9200",
 ]
 
 WAZUH_API_USER = os.environ.get("WAZUH_API_USER", "wazuh")
-WAZUH_API_PASS = os.environ.get("WAZUH_API_PASS", "vhqnO85EFu4r*7lNCB*gzBp9AY1YF.jy")
+WAZUH_API_PASS = os.environ.get("WAZUH_API_PASS", "api-pass")
 WAZUH_API_URLS = os.environ.get("WAZUH_API_URLS", ",".join(ALTERNATIVE_URLS)).split(",")
 
 INDEXER_USER = os.environ.get("INDEXER_USER", "admin")
-INDEXER_PASS = os.environ.get("INDEXER_PASS", "UjXP+zjI3O5Ne6sFe7OoXW9p8hUdRtKC")
+INDEXER_PASS = os.environ.get("INDEXER_PASS", "indexer-pass")
 INDEXER_URLS = os.environ.get("INDEXER_URLS", ",".join(ALTERNATIVE_INDEXER_URLS)).split(",")
 
 # Token cache

@@ -62,9 +62,9 @@ Claude Desktop → MCP Gateway → wazuh_mcp MCP Server → Wazuh API / Wazuh In
 ### Local Testing
 1. Export credentials in your shell:
    export WAZUH_API_USER="wazuh"
-   export WAZUH_API_PASS="vhqnO85EFu4r*7lNCB*gzBp9AY1YF.jy"
+   export WAZUH_API_PASS="WAZUH_API_PASS"
    export INDEXER_USER="admin"
-   export INDEXER_PASS="UjXP+zjI3O5Ne6sFe7OoXW9p8hUdRtKC"
+   export INDEXER_PASS="INDEXER_PASS"
 
 2. Run locally (without Docker) for debugging:
    python wazuh_mcp_server.py
