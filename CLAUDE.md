@@ -1,0 +1,22 @@
+# Wazuh MCP Server — Implementation Notes
+
+- Service name: wazuh_mcp
+- Purpose: expose categorized Wazuh alerts and agent listing as MCP tools so an LLM frontend (Claude Desktop) can call them.
+- Tools expose single-line docstrings and return formatted strings (emoji-enhanced).
+- Auth:
+  - Wazuh API calls use basic auth to the first reachable URL in WAZUH_API_URLS.
+  - Indexer (Elasticsearch) queries use basic auth to the first reachable URL in INDEXER_URLS.
+- Indexer query:
+  - Searches indices matching `wazuh-alerts-*` and filters by `rule.groups` terms (module groups).
+  - Results are formatted into compact human-readable strings.
+- Error handling:
+  - All tools return user-friendly error strings beginning with ❌ when something goes wrong.
+  - Network calls use timeouts and verify=False to allow self-signed certs (suitable for internal networks).
+- Notes for maintainers:
+  - Avoid hardcoding secrets in production. Use Docker secrets or environment variables in runtime configuration.
+  - To add a new module: add its entry into WAZUH_MODULES and create a small wrapper tool similar to others.
+  - To change indexer index pattern, edit the search path in `_search_indexer_for_groups`.
+- MCP patterns:
+  - Uses FastMCP("wazuh_mcp") with no prompt parameter.
+  - All tool docstrings are single-line only.
+  - All tools return strings and check string params for emptiness using .strip().
