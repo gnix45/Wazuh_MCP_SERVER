@@ -1,140 +1,313 @@
-## 🚀 Wazuh MCP Server
+<div align="center">
 
-A small, focused MCP (Model Context Protocol) server that exposes Wazuh alerts (by category/module) and running agents as tools for LLM frontends (e.g., Claude Desktop). Clean, secure defaults and easy-to-follow integration steps.
+![Wazuh Logo](https://blackcell.ae/wp-content/uploads/2022/08/wazuh.png)
 
-### 🧭 Table of Contents
+# 🛡️ Wazuh MCP Server
 
-- **What this is**
-- **Features**
-- **Repository layout**
-- **Prerequisites**
-- **Environment and secrets**
-- **Build and run (local)**
-- **Docker MCP secrets (recommended)**
-- **Docker MCP + Claude Desktop integration**
-- **Testing locally (JSON-RPC over stdio)**
-- **Usage examples**
-- **Troubleshooting**
-- **License**
-- **Author**
- - **Screenshots**
+**A powerful Model Context Protocol (MCP) server that bridges Wazuh SIEM with AI assistants like Claude Desktop**
 
-### 📦 What this is
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org/)
+[![Wazuh](https://img.shields.io/badge/Wazuh-4.13+-orange.svg)](https://wazuh.com/)
 
-This repo contains a single-file MCP server implementation (`wazuh_mcp_server.py`) and the minimal artifacts needed to build and run it inside Docker. The server:
+*Transform your security monitoring with AI-powered insights*
 
-- Obtains a JWT token from the Wazuh API (`/security/user/authenticate?raw=true`) and caches it
-- Queries the Wazuh indexer (indices `wazuh-alerts-*`) to retrieve alerts
-- Exposes categorized alert tools for Wazuh modules (FIM, Malware, Threat Hunting, Vulnerability, IT Hygiene, PCI, GDPR, HIPAA, AWS, GitHub, Docker, etc.)
-- Exposes `get_running_agents` tool (lists agents via Wazuh API)
-- Is designed to be launched by an MCP Gateway (Claude Desktop's MCP gateway) and accept secrets via Docker MCP secrets or environment variables
+</div>
 
-### ✨ Features
+---
 
-- **Auth**: JWT-based Wazuh server authentication with token caching
-- **Search**: Indexer (Elasticsearch/OpenSearch) helper for `wazuh-alerts-*`
-- **Tools**: One tool per Wazuh module (e.g., `wazuh_FIM_Alerts`, `wazuh_Malware_Alerts`)
-- **Agents**: `get_running_agents` for quick visibility
-- **UX**: Human-readable, emoji-enhanced outputs (❌ errors, ✅/📊 success)
-- **Security**: Runs as non-root in Docker; self-signed certs allowed for internal networks
+## 📋 Table of Contents
 
-### 📁 Repository layout
+- [🎯 What is this?](#-what-is-this)
+- [✨ Features](#-features)
+- [🏗️ Architecture](#️-architecture)
+- [📁 Repository Structure](#-repository-structure)
+- [🚀 Quick Start](#-quick-start)
+- [🔧 Prerequisites](#-prerequisites)
+- [🔐 Configuration](#-configuration)
+- [🐳 Docker Setup](#-docker-setup)
+- [🤖 Claude Desktop Integration](#-claude-desktop-integration)
+- [🧪 Testing](#-testing)
+- [💡 Usage Examples](#-usage-examples)
+- [🆘 Troubleshooting](#-troubleshooting)
+- [📸 Screenshots](#-screenshots)
+- [📄 License](#-license)
+- [👨‍💻 Author](#-author)
 
-```text
-wazuh-mcp-server/
-├─ Dockerfile
-├─ requirements.txt
-├─ wazuh_mcp_server.py      # MCP server (main implementation)
-├─ readme.txt               # Legacy readme (optional)
-├─ CLAUDE.md                # Implementation notes
-└─ README.md                # This file
+---
+
+## 🎯 What is this?
+
+The **Wazuh MCP Server** is a specialized Model Context Protocol server that seamlessly integrates Wazuh SIEM capabilities with AI assistants. It provides real-time access to security alerts, agent status, and threat intelligence through a clean, standardized interface.
+
+### 🎪 Key Capabilities
+
+- **🔍 Real-time Alert Monitoring** - Access alerts from all Wazuh modules
+- **🤖 AI-Native Integration** - Designed specifically for Claude Desktop and other MCP clients
+- **🔐 Secure Authentication** - JWT-based token management with automatic refresh
+- **📊 Multi-Module Support** - FIM, Malware Detection, Threat Hunting, Vulnerability Assessment, and more
+- **🐳 Container-Ready** - Fully containerized with Docker support
+- **⚡ High Performance** - Optimized for real-time security operations
+
+---
+
+## ✨ Features
+
+### 🔐 Security & Authentication
+- **JWT Token Management** - Automatic authentication with Wazuh API
+- **Token Caching** - Efficient token reuse to minimize API calls
+- **Secure Secrets** - Docker MCP secrets integration for production deployments
+
+### 📊 Monitoring & Alerts
+- **File Integrity Monitoring (FIM)** - Track file changes and modifications
+- **Malware Detection** - Identify potential threats and suspicious activities
+- **Threat Hunting** - Advanced threat detection and analysis
+- **Vulnerability Assessment** - Security vulnerability tracking
+- **IT Hygiene** - System configuration and compliance monitoring
+- **Docker Monitoring** - Container security and activity tracking
+- **MITRE ATT&CK Mapping** - Tactics, techniques, and procedures analysis
+
+### 🛠️ Technical Features
+- **Multi-Indexer Support** - Elasticsearch and OpenSearch compatibility
+- **Smart Fallbacks** - Manager logs when indexer is unavailable
+- **Error Handling** - Comprehensive error management and reporting
+- **Emoji-Enhanced Output** - Human-readable, visually appealing responses
+- **Non-Root Execution** - Secure container operation
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TB
+    A[Claude Desktop] --> B[MCP Gateway]
+    B --> C[Wazuh MCP Server]
+    C --> D[Wazuh API]
+    C --> E[Wazuh Indexer]
+    D --> F[JWT Authentication]
+    E --> G[Alert Data]
+    C --> H[AI Tools]
+    H --> I[FIM Alerts]
+    H --> J[Malware Detection]
+    H --> K[Threat Hunting]
+    H --> L[Vulnerability Assessment]
 ```
 
-### 🧰 Prerequisites
+---
 
-- **Docker Desktop** (with MCP Toolkit support if integrating with Claude Desktop)
-- **docker** CLI
-- **docker mcp** CLI plugin (for Docker MCP secrets and catalogs)
-- **Network access** to Wazuh API (port 55000) and Wazuh indexer (port 9200)
-- **Python 3.11** (optional, for local testing)
+## 📁 Repository Structure
 
-### 🔐 Environment and secrets
+```
+wazuh-mcp-server/
+├── 🐳 Dockerfile                 # Container configuration
+├── 📦 requirements.txt           # Python dependencies
+├── 🐍 wazuh_mcp_server.py       # Main MCP server implementation
+├── 📋 setup.sh                   # Setup and configuration script
+├── 📖 README.md                  # This documentation
+├── 📝 CHANGELOG.md               # Version history
+├── 📄 LICENSE                    # MIT License
+├── 🔧 custom.yaml                # MCP catalog configuration
+├── 📁 assets/                    # Screenshots and images
+│   ├── claude-fim-alerts.png
+│   └── obsidian-fim-alerts.png
+└── 📚 docs/                      # Additional documentation
+```
 
-Local `.env` example (for development only):
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/your-username/wazuh-mcp-server.git
+cd wazuh-mcp-server
+```
+
+### 2️⃣ Build the Docker Image
+
+```bash
+docker build -t wazuh-mcp-server .
+```
+
+### 3️⃣ Configure Secrets
+
+```bash
+# Set up Docker MCP secrets
+docker mcp secret set WAZUH_API_USER="wazuh"
+docker mcp secret set WAZUH_API_PASS="your-api-password"
+docker mcp secret set INDEXER_USER="admin"
+docker mcp secret set INDEXER_PASS="your-indexer-password"
+docker mcp secret set WAZUH_API_URLS="https://your-wazuh-manager:55000"
+docker mcp secret set INDEXER_URLS="https://your-indexer:9200"
+```
+
+### 4️⃣ Test the Connection
+
+```bash
+# Test imports and connectivity
+docker run --network host --rm \
+  -e WAZUH_PASSWORD="your-password" \
+  -e WAZUH_INDEXER_USERNAME="admin" \
+  -e WAZUH_INDEXER_PASSWORD="your-indexer-password" \
+  wazuh-mcp-server python3 -c "
+import sys
+sys.path.append('.')
+from wazuh_mcp_server import search_wazuh_alerts_index, WAZUH_MODULES
+print('✅ All imports successful')
+print(f'Configured modules: {len(WAZUH_MODULES)}')
+"
+```
+
+---
+
+## 🔧 Prerequisites
+
+### System Requirements
+- **🐳 Docker Desktop** (with MCP Toolkit support)
+- **🐍 Python 3.11+** (for local development)
+- **🌐 Network Access** to Wazuh Manager (port 55000) and Indexer (port 9200)
+
+### Wazuh Requirements
+- **Wazuh Manager** 4.13+ with API enabled
+- **Wazuh Indexer** (Elasticsearch/OpenSearch) running
+- **Valid API credentials** with appropriate permissions
+
+---
+
+## 🔐 Configuration
+
+### Environment Variables
+
+Create a `.env` file for local development:
 
 ```dotenv
-# .env (example)
+# Wazuh API Configuration
 WAZUH_API_USER=wazuh
-WAZUH_API_PASS=api-pass
-WAZUH_API_URLS=https://192.168.x.x:55000,https://127.0.0.1:55000
+WAZUH_API_PASS=your-api-password
+WAZUH_API_URLS=https://192.168.1.100:55000,https://127.0.0.1:55000
+
+# Indexer Configuration
 INDEXER_USER=admin
-INDEXER_PASS=indexer-pass
-INDEXER_URLS=https://192.168.x.x:9200,https://127.0.0.1:9200
+INDEXER_PASS=your-indexer-password
+INDEXER_URLS=https://192.168.1.100:9200,https://127.0.0.1:9200
 ```
 
-Prefer using Docker MCP secrets for production and Claude integration.
+### Docker MCP Secrets (Recommended)
 
-### 🛠️ Build and run (local)
-
-Build the Docker image (from repo root):
+For production deployments, use Docker MCP secrets:
 
 ```bash
-docker build -t wazuh_mcp-server .
-```
-
-Quick local run (debug; env vars injected — for manual testing only):
-
-```bash
-# export or set the envs first (example)
-export WAZUH_API_USER="wazuh"
-export WAZUH_API_PASS="api-pass"
-export WAZUH_API_URLS="https://192.168.x.x:55000,https://127.0.0.1:55000"
-export INDEXER_USER="admin"
-export INDEXER_PASS="indexer-pass"
-export INDEXER_URLS="https://192.168.x.x:9200,https://127.0.0.1:9200"
-
-docker run --rm -i \
-  -e WAZUH_API_USER="$WAZUH_API_USER" \
-  -e WAZUH_API_PASS="$WAZUH_API_PASS" \
-  -e WAZUH_API_URLS="$WAZUH_API_URLS" \
-  -e INDEXER_USER="$INDEXER_USER" \
-  -e INDEXER_PASS="$INDEXER_PASS" \
-  -e INDEXER_URLS="$INDEXER_URLS" \
-  wazuh_mcp-server
-```
-
-Note: This is to validate the server process and logs. For normal use with Claude, run via the MCP Gateway.
-
-### 🧳 Docker MCP secrets (recommended)
-
-Store secrets so Claude's MCP gateway injects them into the server container:
-
-```bash
+# Set all required secrets
 docker mcp secret set WAZUH_API_USER="wazuh"
-docker mcp secret set WAZUH_API_PASS="api-pass"
+docker mcp secret set WAZUH_API_PASS="your-secure-password"
 docker mcp secret set INDEXER_USER="admin"
-docker mcp secret set INDEXER_PASS="indexer-pass"
-docker mcp secret set WAZUH_API_URLS="https://192.168.x.x:55000,https://127.0.0.1:55000"
-docker mcp secret set INDEXER_URLS="https://192.168.x.x:9200,https://127.0.0.1:9200"
+docker mcp secret set INDEXER_PASS="your-indexer-password"
+docker mcp secret set WAZUH_API_URLS="https://your-wazuh:55000"
+docker mcp secret set INDEXER_URLS="https://your-indexer:9200"
 
+# Verify secrets are set
 docker mcp secret list
 ```
 
-### 🖥️ Docker MCP + Claude Desktop integration
+---
 
-Build the image locally:
+## 🐳 Docker Setup
+
+### Build the Image
 
 ```bash
-docker build -t wazuh_mcp-server .
+# Build the Docker image
+docker build -t wazuh-mcp-server .
+
+# Tag for registry (optional)
+docker tag wazuh-mcp-server:latest your-registry/wazuh-mcp-server:latest
 ```
 
-Ensure your `custom.yaml` (catalog) contains the `wazuh_mcp` entry and maps secret names to environment variables. Important fields:
+### Run Locally
 
-- **image**: `wazuh_mcp-server:latest`
-- **tools**: list of tool names (e.g., `get_running_agents`, `wazuh_FIM_Alerts`, ...)
-- **secrets**: mapping secret names to env variables used by the container
+```bash
+# Quick test run
+docker run --rm -i \
+  -e WAZUH_API_USER="wazuh" \
+  -e WAZUH_API_PASS="your-password" \
+  -e WAZUH_API_URLS="https://192.168.1.100:55000" \
+  -e INDEXER_USER="admin" \
+  -e INDEXER_PASS="your-indexer-password" \
+  -e INDEXER_URLS="https://192.168.1.100:9200" \
+  wazuh-mcp-server
+```
 
-Edit Claude Desktop config to run the MCP Gateway with your custom catalog. Example snippet (Linux):
+---
+
+## 🤖 Claude Desktop Integration
+
+### 1️⃣ Configure MCP Catalog
+
+Create `~/.docker/mcp/catalogs/custom.yaml`:
+
+```yaml
+version: 2
+name: custom
+displayName: Custom MCP Servers
+registry:
+  wazuh_mcp:
+    description: "Security monitoring and alert management via Wazuh SIEM platform"
+    title: "Wazuh Security Monitor"
+    type: server
+    dateAdded: "2025-09-23T00:00:00Z"
+    image: wazuh-mcp-server:latest
+    ref: ""
+    tools:
+      - name: get_wazuh_agents
+      - name: get_wazuh_running_agents
+      - name: test_wazuh_indexer_connection
+      - name: get_file_integrity_monitoring_alerts
+      - name: get_malware_detection_alerts
+      - name: get_threat_hunting_alerts
+      - name: get_vulnerability_detection_alerts
+      - name: get_it_hygiene_alerts
+      - name: get_docker_alerts
+      - name: get_mitre_attack_alerts
+    secrets:
+      - name: WAZUH_API_USER
+        env: WAZUH_API_USER
+        example: "wazuh"
+      - name: WAZUH_API_PASS
+        env: WAZUH_API_PASS
+        example: "your-password"
+      - name: INDEXER_USER
+        env: INDEXER_USER
+        example: "admin"
+      - name: INDEXER_PASS
+        env: INDEXER_PASS
+        example: "your-indexer-password"
+      - name: WAZUH_API_URLS
+        env: WAZUH_API_URLS
+        example: "https://192.168.1.100:55000"
+      - name: INDEXER_URLS
+        env: INDEXER_URLS
+        example: "https://192.168.1.100:9200"
+    metadata:
+      category: security
+      license: MIT
+      owner: local
+```
+
+### 2️⃣ Update Registry
+
+Create `~/.docker/mcp/registry.yaml`:
+
+```yaml
+registry:
+  wazuh_mcp:
+    ref: ""
+```
+
+### 3️⃣ Configure Claude Desktop
+
+Update your Claude Desktop configuration (`~/.config/Claude/claude_desktop_config.json`):
 
 ```json
 {
@@ -160,100 +333,174 @@ Edit Claude Desktop config to run the MCP Gateway with your custom catalog. Exam
 }
 ```
 
-Start/restart Claude Desktop (or restart the gateway). The gateway will:
+### 4️⃣ Restart Claude Desktop
 
-- Read `custom.yaml`
-- Launch container `wazuh_mcp-server:latest` for `wazuh_mcp`
-- Inject secrets using Docker MCP secret store
-- Discover and expose tools in Claude
+Restart Claude Desktop to load the new MCP server configuration.
 
-### 🧪 Testing locally (JSON-RPC over stdio)
+---
 
-If you want to test the MCP protocol directly with the Python file (no gateway), run the server manually (stdin/stdout mode):
+## 🧪 Testing
+
+### Test Server Functionality
 
 ```bash
-# Start server (blocks stdin)
+# Test basic connectivity
+docker run --network host --rm \
+  -e WAZUH_PASSWORD="your-password" \
+  -e WAZUH_INDEXER_USERNAME="admin" \
+  -e WAZUH_INDEXER_PASSWORD="your-indexer-password" \
+  wazuh-mcp-server python3 -c "
+import asyncio
+import sys
+sys.path.append('.')
+from wazuh_mcp_server import search_wazuh_alerts_index
+
+async def test():
+    data, error = await search_wazuh_alerts_index({'query': {'match_all': {}}, 'size': 3})
+    if error:
+        print(f'❌ Indexer Error: {error}')
+    else:
+        hits = data.get('hits', {}).get('hits', [])
+        total = data.get('hits', {}).get('total', 0)
+        if isinstance(total, dict):
+            total = total.get('value', 0)
+        print(f'✅ Found {len(hits)} alerts out of {total} total!')
+        for hit in hits:
+            rule = hit.get('_source', {}).get('rule', {})
+            agent = hit.get('_source', {}).get('agent', {})
+            print(f'  - Rule {rule.get(\"id\")}: {rule.get(\"description\", \"No description\")[:60]}... (Agent: {agent.get(\"name\", \"Unknown\")})')
+
+asyncio.run(test())
+"
+```
+
+### Test MCP Protocol
+
+```bash
+# Test MCP server directly
 python wazuh_mcp_server.py
 ```
 
-### 💬 Usage examples (ask Claude)
+---
 
-- "List running Wazuh agents (show at most 10)."
-- "Show latest File Integrity Monitoring alerts."
-- "Show 20 Malware Detection alerts filtered by agent agent-123."
-- "Give me MITRE ATT&CK mapped alerts from the last 50 entries."
+## 💡 Usage Examples
 
-Each tool accepts parameters (where supported), such as:
+Once integrated with Claude Desktop, you can ask questions like:
 
-- **limit** (string) — e.g., `"10"`, `"20"`
-- **agent** (string) — optional agent name/id filter
+### 🔍 Agent Management
+- *"Show me all running Wazuh agents"*
+- *"List agents with their last check-in times"*
+- *"Which agents are offline?"*
 
-Example internal tool names (discovered by the gateway):
+### 🚨 Alert Analysis
+- *"Show me the latest File Integrity Monitoring alerts"*
+- *"Display malware detection alerts from the last 24 hours"*
+- *"Find high-severity threat hunting alerts"*
+- *"Show vulnerability detection alerts for agent-123"*
 
-```text
-get_running_agents
-wazuh_FIM_Alerts
-wazuh_Malware_Alerts
-wazuh_Threat_Hunting_Alerts
-wazuh_Vulnerability_Alerts
-# ... and the rest listed in custom.yaml
-```
+### 📊 Security Insights
+- *"Give me a summary of all security events today"*
+- *"Show MITRE ATT&CK mapped alerts"*
+- *"What are the most common rule violations?"*
+- *"Analyze Docker container security events"*
 
-### 🆘 Troubleshooting
+### 🛠️ Troubleshooting
+- *"Test the Wazuh indexer connection"*
+- *"Check if the Wazuh API is responding"*
+- *"Show me any authentication errors"*
 
-#### ❗ Cannot reach indexer (connection refused)
+---
 
-```bash
-curl -k -u "admin:INDEXER_PASS" "https://192.168.x.x:9200/_cluster/health"
-# curl: (7) Failed to connect
-```
+## 🆘 Troubleshooting
 
-- Ensure Wazuh indexer service is running on the manager host:
+### ❌ Common Issues
 
-```bash
-sudo systemctl status wazuh-indexer
-sudo systemctl start wazuh-indexer
-```
-
-- Ensure firewall allows port 9200 from the gateway host
-- If using Docker on the same host, consider `host.docker.internal` or a reachable host IP
-
-#### 🔑 Authentication errors from Wazuh API
+#### 🔌 Connection Refused (Indexer)
 
 ```bash
-curl -k -u "wazuh:WAZUH_API_PASS" -X POST "https://192.168.x.x:55000/security/user/authenticate?raw=true"
+# Test indexer connectivity
+curl -k -u "admin:your-password" "https://your-indexer:9200/_cluster/health"
 ```
 
-- Should return a token string
-- If authentication fails, verify Wazuh API user/pass in secrets or `.env`
+**Solutions:**
+- Ensure Wazuh indexer is running: `sudo systemctl status wazuh-indexer`
+- Check firewall settings for port 9200
+- Verify network connectivity between containers
 
-#### 🧰 Tools not showing in Claude
+#### 🔑 Authentication Errors
 
-- Confirm `~/.docker/mcp/catalogs/custom.yaml` exists and includes `wazuh_mcp`
-- Confirm `registry.yaml` has `wazuh_mcp` under the `registry:` key
-- Confirm Claude Desktop config includes `--catalog=/mcp/catalogs/custom.yaml`
-- Restart Claude Desktop
+```bash
+# Test Wazuh API authentication
+curl -k -u "wazuh:your-password" -X POST "https://your-wazuh:55000/security/user/authenticate?raw=true"
+```
 
-### 📸 Screenshots
+**Solutions:**
+- Verify API credentials in secrets
+- Check Wazuh API user permissions
+- Ensure API is enabled on Wazuh manager
+
+#### 🧰 Tools Not Appearing in Claude
+
+**Checklist:**
+- ✅ `custom.yaml` exists at `~/.docker/mcp/catalogs/custom.yaml`
+- ✅ `registry.yaml` includes `wazuh_mcp` entry
+- ✅ Claude Desktop config points to custom catalog
+- ✅ Docker image built successfully
+- ✅ Claude Desktop restarted after configuration
+
+### 🔧 Debug Commands
+
+```bash
+# Check MCP server list
+docker mcp server list
+
+# Verify secrets
+docker mcp secret list
+
+# Test Docker image
+docker run --rm wazuh-mcp-server python3 -c "print('✅ Image working')"
+
+# Check file permissions
+ls -la ~/.docker/mcp/catalogs/
+```
+
+---
+
+## 📸 Screenshots
+
+### Claude Desktop Integration
 
 Claude Desktop showing recent Wazuh FIM alerts retrieved via the MCP server:
 
 ![Claude showing Wazuh FIM alerts](assets/claude-fim-alerts.png)
 
-
+### Obsidian Integration
 
 Obsidian vault note generated from the same FIM alerts (stored via tools):
 
 ![Obsidian vault FIM alerts note](assets/obsidian-fim-alerts.png)
 
+---
 
+## 📄 License
 
-### 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-MIT — include a `LICENSE` file in the repo if publishing publicly.
+---
 
-### 👤 Author / Environment
+## 👨‍💻 Author
 
-- **Author**: Mr PK
-- **Environment used**: Ubuntu 24.04, Wazuh 4.13 (latest at time of writing), Docker Desktop with MCP Toolkit enabled, Claude Desktop rebuilt for Debian-based systems
-- Thanks to NetworkChuck for inspiration getting started 🙌
+**Mr PK** - *Security Engineer & Developer*
+
+- **Environment**: Ubuntu 24.04, Wazuh 4.13, Docker Desktop with MCP Toolkit
+- **Special Thanks**: NetworkChuck for the inspiration and guidance 🙌
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+*Built with ❤️ for the security community*
+
+</div>

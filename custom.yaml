@@ -1,0 +1,47 @@
+version: 2
+name: custom
+displayName: Custom MCP Servers
+registry:
+  wazu:
+    description: "Security monitoring and alert management via Wazuh SIEM platform"
+    title: "Wazu Security Monitor"
+    type: server
+    dateAdded: "2025-09-23T00:00:00Z"
+    image: wazu-mcp:latest
+    ref: ""
+    readme: ""
+    toolsUrl: ""
+    source: ""
+    upstream: ""
+    icon: ""
+    docker:
+      network: host
+    tools:
+      - name: get_wazuh_agents
+      - name: get_wazuh_running_agents
+      - name: test_wazuh_indexer_connection
+      - name: get_file_integrity_monitoring_alerts
+      - name: get_malware_detection_alerts
+      - name: get_threat_hunting_alerts
+      - name: get_vulnerability_detection_alerts
+      - name: get_it_hygiene_alerts
+      - name: get_docker_alerts
+      - name: get_mitre_attack_alerts
+    secrets:
+      - name: WAZUH_PASSWORD
+        env: WAZUH_PASSWORD
+        example: "your-wazuh-password"
+      - name: WAZUH_INDEXER_USERNAME
+        env: WAZUH_INDEXER_USERNAME
+        example: "admin"
+      - name: WAZUH_INDEXER_PASSWORD
+        env: WAZUH_INDEXER_PASSWORD
+        example: "admin"
+    metadata:
+      category: monitoring
+      tags:
+        - security
+        - siem
+        - wazuh
+      license: MIT
+      owner: local
